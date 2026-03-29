@@ -222,18 +222,15 @@ npm test
 You should see all tests pass with output like this:
 
 ```
-PASS  tests/dateValidator.test.ts
-PASS  tests/ageCalculator.test.ts
-
-Test Suites: 2 passed, 2 total
-Tests:       40+ passed
-
---------------------------|---------|----------|---------|---------|
-File                      | % Stmts | % Branch | % Funcs | % Lines |
---------------------------|---------|----------|---------|---------|
-dateValidator.ts          |     100 |      100 |     100 |     100 |
-ageCalculator.ts          |     100 |      100 |     100 |     100 |
---------------------------|---------|----------|---------|---------|
+ PASS  tests/dateValidator.test.ts
+ PASS  tests/ageCalculator.test.ts
+------------------------|---------|----------|---------|---------|-------------------|
+File                    | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s |
+------------------------|---------|----------|---------|---------|-------------------|
+All files               |     100 |      100 |     100 |     100 |                   |
+ageCalculator.ts        |     100 |      100 |     100 |     100 |                   |
+birthdate-validator.ts  |     100 |      100 |     100 |     100 |                   |
+------------------------|---------|----------|---------|---------|-------------------|
 ```
 
 ### Understanding the coverage table
@@ -1007,3 +1004,34 @@ see exactly which one without needing to debug a loop.
 > "future date" check should stay as separate `it` blocks — they
 > exercise different branches of the code and a failure in one tells
 > you something completely different from a failure in the other.
+
+### Shared date variables
+
+Repeating raw date values across multiple tests creates a maintenance
+problem — change a date and you have to find every occurrence. Named
+constants solve this:
+
+```typescript
+// Without variables — reader has to decode numbers every time
+it("returns correct age on exact birthday", () => {
+  expect(calculateAge(utc(1990, 7, 7), utc(2025, 7, 7))).toBe(35);
+});
+
+// With variables — intent is immediately clear
+it("returns correct age on exact birthday", () => {
+  expect(calculateAge(BIRTH_TODAY, TODAY_STANDARD)).toBe(35);
+});
+```
+
+All shared dates are declared at the top of `ageCalculator.test.ts`
+before any `describe` block, split into two groups:
+
+- **`BIRTH_`** prefix — what the user was born (e.g. `BIRTH_TODAY`,
+  `BIRTH_CENTENARY`, `BIRTH_LEAP_DAY`)
+- **`TODAY_`** prefix — what "today" is in each test scenario
+  (e.g. `TODAY_STANDARD`, `TODAY_LEAP_YEAR`, `TODAY_NEW_YEAR`)
+
+Names describe the **scenario** being tested, not the raw date value.
+Use a named variable when a date appears in more than one test. Use an
+inline `utc()` call when the date is unique to one test and the test
+name makes the intent obvious.
