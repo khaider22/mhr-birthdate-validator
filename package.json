@@ -1,7 +1,7 @@
 {
   "name": "mhr-birthdate-validator",
   "version": "1.0.0",
-  "description": "",
+  "description": "CLI tool that validates a birthdate and calculates age — MHR Senior QA Engineer exercise",
   "main": "index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
@@ -10,18 +10,18 @@
     "test:watch": "jest --watch"
   },
   "keywords": [],
-  "author": "",
+  "author": "Kamran Haider",
   "license": "ISC",
   "dependencies": {
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "@types/node": "^25.5.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.7",
     "@types/readline-sync": "^1.4.8",
-    "jest": "^30.3.0",
-    "ts-jest": "^29.4.6",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.2"
+    "typescript": "^5.4.5"
   }
 }

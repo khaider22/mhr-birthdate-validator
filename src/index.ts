@@ -10,8 +10,8 @@
  */
 
 import readlineSync from "readline-sync";
-import { validateBirthDate } from "../src/birthdate-validator";
-import { evaluateBirthDate } from "../src/ageCalculator";
+import { validateBirthdate } from "./birthdate-validator";
+import { evaluateBirthdate } from "./ageCalculator";
 
 async function main(): Promise<void> {
   console.log("================================");
@@ -28,7 +28,7 @@ async function main(): Promise<void> {
   // Step 2 — validate the format and calendar correctness
   // validateBirthdate returns a result object — never throws
   // so we handle errors as data, not exceptions
-  const validation = validateBirthDate(input);
+  const validation = validateBirthdate(input);
 
   if (!validation.isValid) {
     console.error(`\nError: ${validation.errorMessage}`);
@@ -39,7 +39,7 @@ async function main(): Promise<void> {
   // new Date() is called once here and passed down
   // so the core functions never touch the system clock directly
   // making them fully testable without mocking
-  const result = evaluateBirthDate(validation.date, new Date());
+  const result = evaluateBirthdate(validation.date, new Date());
 
   console.log();
 
