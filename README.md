@@ -222,18 +222,15 @@ npm test
 You should see all tests pass with output like this:
 
 ```
-PASS  tests/dateValidator.test.ts
-PASS  tests/ageCalculator.test.ts
-
-Test Suites: 2 passed, 2 total
-Tests:       40+ passed
-
---------------------------|---------|----------|---------|---------|
-File                      | % Stmts | % Branch | % Funcs | % Lines |
---------------------------|---------|----------|---------|---------|
-dateValidator.ts          |     100 |      100 |     100 |     100 |
-ageCalculator.ts          |     100 |      100 |     100 |     100 |
---------------------------|---------|----------|---------|---------|
+ PASS  tests/dateValidator.test.ts
+ PASS  tests/ageCalculator.test.ts
+------------------------|---------|----------|---------|---------|-------------------|
+File                    | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s |
+------------------------|---------|----------|---------|---------|-------------------|
+All files               |     100 |      100 |     100 |     100 |                   |
+ageCalculator.ts        |     100 |      100 |     100 |     100 |                   |
+birthdate-validator.ts  |     100 |      100 |     100 |     100 |                   |
+------------------------|---------|----------|---------|---------|-------------------|
 ```
 
 ### Understanding the coverage table
@@ -933,3 +930,108 @@ error message adds complexity without value.
   modules (`dateValidator.ts`, `ageCalculator.ts`) are completely
   decoupled from I/O and could be imported directly into a REST API,
   a web form handler, or a serverless function with no changes.
+
+### Merging tests with similar output using `it.each`
+
+When multiple different inputs all produce the same result for the same
+reason, writing a separate `it` block for each one creates noise — the
+test file grows long and the repeated structure hides what actually
+differs between each case.
+
+Jest provides `it.each` for exactly this situation. It runs the same
+test logic once per row in a data table, and each row appears as its
+own named result in the output.
+
+**Example — invalid format cases merged into one block:**
+
+```typescript
+// BEFORE — seven separate it blocks, all identical except the input
+it("returns null for dashes instead of slashes", () => {
+  expect(parseDate("1990-06-15")).toBeNull();
+});
+it("returns null for dots as separator", () => {
+  expect(parseDate("1990.06.15")).toBeNull();
+});
+it("returns null for missing leading zeros", () => {
+  expect(parseDate("1990/6/5")).toBeNull();
+});
+// ... four more blocks exactly like these
+
+// AFTER — one it.each block, same coverage, far less repetition
+it.each([
+  ["empty string", ""],
+  ["dashes instead of slashes", "1990-06-15"],
+  ["dots as separator", "1990.06.15"],
+  ["DD/MM/YYYY order", "15/06/1990"],
+  ["missing leading zeros", "1990/6/5"],
+  ["plain text", "not-a-date"],
+  ["partial date", "1990/06"],
+  ["negative year", "-2026/03/28"],
+  ["trailing characters", "1990/06/15abc"],
+])("returns null for %s", (_description, input) => {
+  expect(parseDate(input)).toBeNull();
+});
+```
+
+Jest output for the `it.each` version:
+
+```
+✅ returns null for empty string
+✅ returns null for dashes instead of slashes
+✅ returns null for dots as separator
+✅ returns null for DD/MM/YYYY order
+✅ returns null for missing leading zeros
+✅ returns null for plain text
+✅ returns null for partial date
+✅ returns null for negative year
+✅ returns null for trailing characters
+```
+
+Each row appears individually in the output — if one input fails you
+see exactly which one without needing to debug a loop.
+
+**When to use `it.each` vs separate `it` blocks:**
+
+| Use separate `it` blocks when...                       | Use `it.each` when...                                  |
+| ------------------------------------------------------ | ------------------------------------------------------ |
+| Each case fails for a different reason                 | All cases produce the same result for the same reason  |
+| Each case needs a different assertion                  | The assertion is identical — only the input changes    |
+| The failure of one case tells you something different  | Any failure points to the same bug                     |
+| You need to explain each case individually             | The test name + input data is self-explanatory         |
+
+> **Important:** do not use `it.each` to merge tests that check
+> _different things_. For example, the "born today" check and the
+> "future date" check should stay as separate `it` blocks — they
+> exercise different branches of the code and a failure in one tells
+> you something completely different from a failure in the other.
+
+### Shared date variables
+
+Repeating raw date values across multiple tests creates a maintenance
+problem — change a date and you have to find every occurrence. Named
+constants solve this:
+
+```typescript
+// Without variables — reader has to decode numbers every time
+it("returns correct age on exact birthday", () => {
+  expect(calculateAge(utc(1990, 7, 7), utc(2025, 7, 7))).toBe(35);
+});
+
+// With variables — intent is immediately clear
+it("returns correct age on exact birthday", () => {
+  expect(calculateAge(BIRTH_TODAY, TODAY_STANDARD)).toBe(35);
+});
+```
+
+All shared dates are declared at the top of `ageCalculator.test.ts`
+before any `describe` block, split into two groups:
+
+- **`BIRTH_`** prefix — what the user was born (e.g. `BIRTH_TODAY`,
+  `BIRTH_CENTENARY`, `BIRTH_LEAP_DAY`)
+- **`TODAY_`** prefix — what "today" is in each test scenario
+  (e.g. `TODAY_STANDARD`, `TODAY_LEAP_YEAR`, `TODAY_NEW_YEAR`)
+
+Names describe the **scenario** being tested, not the raw date value.
+Use a named variable when a date appears in more than one test. Use an
+inline `utc()` call when the date is unique to one test and the test
+name makes the intent obvious.

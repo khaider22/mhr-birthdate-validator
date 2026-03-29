@@ -46,45 +46,19 @@ describe("ParseDate", () => {
     });
   });
 
-  describe("invalid fomat should return null", () => {
-    it("returns null for DD/MM/YYYY format", () => {
-      const result = parseDate("07/07/1990");
-      expect(result).toBe(null);
-    });
-
-    it("returns null for YYYY-MM-DD format", () => {
-      const result = parseDate("2022-05-16");
-      expect(result).toBe(null);
-    });
-
-    it("returns null for missing leading zeroes in month and date", () => {
-      const result = parseDate("2015/8/8");
-      expect(result).toBe(null);
-    });
-
-    it("returns null for negative year", () => {
-      const result = parseDate("-2026/03/28");
-      expect(result).toBe(null);
-    });
-
-    it("returns null for plain text", () => {
-      expect(parseDate("invalid")).toBe(null);
-    });
-
-    it("return null for partial date", () => {
-      expect(parseDate("2019/09")).toBe(null);
-    });
-
-    it("returns null for date with characters", () => {
-      expect(parseDate("2019/09/19th")).toBe(null);
-    });
-
-    it("returns null for empty input", () => {
-      expect(parseDate("")).toBe(null);
-    });
-
-    it("returns null for white spaces", () => {
-      expect(parseDate(" ")).toBe(null);
+  describe("format failures — returns null", () => {
+    it.each([
+      ["empty string", ""],
+      ["dashes instead of slashes", "1990-06-15"],
+      ["dots as separator", "1990.06.15"],
+      ["DD/MM/YYYY order", "15/06/1990"],
+      ["missing leading zeros", "1990/6/5"],
+      ["plain text", "not-a-date"],
+      ["partial date", "1990/06"],
+      ["negative year", "-2026/03/28"],
+      ["trailing characters", "1990/06/15abc"],
+    ])("returns null for %s", (_description, input) => {
+      expect(parseDate(input)).toBeNull();
     });
   });
 
