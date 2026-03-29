@@ -2,7 +2,7 @@ import {
   toUTCMidnight,
   calculateAge,
   isBirthdayToday,
-  evaluateBirthDate,
+  evaluateBirthdate,
   CENTENARY_AGE,
 } from "../src/ageCalculator";
 
@@ -98,50 +98,50 @@ describe("isBirthdayToday", () => {
 describe("evaluateBirthdate", () => {
   describe("future date", () => {
     it("returns future status for tomorrow's date", () => {
-      const result = evaluateBirthDate(BIRTH_FUTURE, TODAY_STANDARD);
+      const result = evaluateBirthdate(BIRTH_FUTURE, TODAY_STANDARD);
       expect(result.status).toBe("future");
     });
 
     it("returns correct message for future date", () => {
-      const result = evaluateBirthDate(BIRTH_FUTURE, TODAY_STANDARD);
+      const result = evaluateBirthdate(BIRTH_FUTURE, TODAY_STANDARD);
       if (result.status == "future") {
         expect(result.message).toBe("You are not born yet!");
       }
     });
 
     it("returns correct status for far future date", () => {
-      const result = evaluateBirthDate(utc(2099, 12, 31), TODAY_STANDARD);
+      const result = evaluateBirthdate(utc(2099, 12, 31), TODAY_STANDARD);
       expect(result.status).toBe("future");
     });
   });
 
   describe("born today", () => {
     it("returns today status correctly for born today", () => {
-      const result = evaluateBirthDate(TODAY_STANDARD, TODAY_STANDARD);
+      const result = evaluateBirthdate(TODAY_STANDARD, TODAY_STANDARD);
       expect(result.status).toBe("today");
     });
 
     it("returns correct message for born today", () => {
-      const result = evaluateBirthDate(TODAY_STANDARD, TODAY_STANDARD);
+      const result = evaluateBirthdate(TODAY_STANDARD, TODAY_STANDARD);
       if (result.status == "today") {
         expect(result.message).toBe("Are you sure you are born today?");
       }
     });
 
     it("does not return Happy Birthday if born today", () => {
-      const result = evaluateBirthDate(TODAY_STANDARD, TODAY_STANDARD);
+      const result = evaluateBirthdate(TODAY_STANDARD, TODAY_STANDARD);
       expect(result.status).not.toBe("ok");
     });
   });
 
   describe("standard past date", () => {
     it("returns status ok for past birthdate", () => {
-      const result = evaluateBirthDate(BIRTH_YESTERDAY, TODAY_STANDARD);
+      const result = evaluateBirthdate(BIRTH_YESTERDAY, TODAY_STANDARD);
       expect(result.status).toBe("ok");
     });
 
     it("returns correct age for past birthdate", () => {
-      const result = evaluateBirthDate(BIRTH_YESTERDAY, TODAY_STANDARD);
+      const result = evaluateBirthdate(BIRTH_YESTERDAY, TODAY_STANDARD);
       if (result.status == "ok") {
         expect(result.age).toBe(
           TODAY_STANDARD.getUTCFullYear() - BIRTH_YESTERDAY.getUTCFullYear()
@@ -150,15 +150,15 @@ describe("evaluateBirthdate", () => {
     });
 
     it("tells the correct age in message", () => {
-      const result = evaluateBirthDate(utc(1990, 7, 7), TODAY_STANDARD);
-      if (result.status == "ok") {
+      const result = evaluateBirthdate(utc(1990, 7, 7), TODAY_STANDARD);
+      if (result.status === "ok") {
         expect(result.messages.some((m) => m.includes("35"))).toBe(true);
       }
     });
 
     it("returns age 0 for person born months ago", () => {
-      const result = evaluateBirthDate(BIRTH_EARLIER_THIS_YEAR, TODAY_STANDARD);
-      if (result.status == "ok") {
+      const result = evaluateBirthdate(BIRTH_EARLIER_THIS_YEAR, TODAY_STANDARD);
+      if (result.status === "ok") {
         expect(result.age).toBe(0);
       }
     });
@@ -166,15 +166,15 @@ describe("evaluateBirthdate", () => {
 
   describe("birthday today", () => {
     it("includes Happy Birthday on birthdate", () => {
-      const result = evaluateBirthDate(BIRTH_TODAY, TODAY_STANDARD);
-      if (result.status == "ok") {
+      const result = evaluateBirthdate(BIRTH_TODAY, TODAY_STANDARD);
+      if (result.status === "ok") {
         expect(result.messages).toContain("Happy Birthday!");
       }
     });
 
     it("does not include Happy Birthday on non birthdate", () => {
-      const result = evaluateBirthDate(BIRTH_YESTERDAY, TODAY_STANDARD);
-      if (result.status == "ok") {
+      const result = evaluateBirthdate(BIRTH_YESTERDAY, TODAY_STANDARD);
+      if (result.status === "ok") {
         expect(result.messages).not.toContain("Happy Birthday!");
       }
     });
@@ -182,14 +182,14 @@ describe("evaluateBirthdate", () => {
 
   describe(`centenary age >= ${CENTENARY_AGE}`, () => {
     it("includes the centenary message for age exactly 100", () => {
-      const result = evaluateBirthDate(BIRTH_CENTENARY, TODAY_STANDARD);
+      const result = evaluateBirthdate(BIRTH_CENTENARY, TODAY_STANDARD);
       if (result.status === "ok") {
         expect(result.messages.some((m) => m.includes("100"))).toBe(true);
       }
     });
 
     it("does not include centenary message for age 99", () => {
-      const result = evaluateBirthDate(utc(1925, 7, 6), TODAY_STANDARD);
+      const result = evaluateBirthdate(utc(1925, 7, 6), TODAY_STANDARD);
       if (result.status === "ok") {
         expect(
           result.messages.some((m) => m.toLowerCase().includes("Wow"))
@@ -198,7 +198,7 @@ describe("evaluateBirthdate", () => {
     });
 
     it("includes both Happy Birthday and centenary on 100th birthday", () => {
-      const result = evaluateBirthDate(BIRTH_CENTENARY, TODAY_STANDARD);
+      const result = evaluateBirthdate(BIRTH_CENTENARY, TODAY_STANDARD);
       if (result.status === "ok") {
         expect(result.messages).toContain("Happy Birthday!");
         expect(result.messages.some((m) => m.includes("100"))).toBe(true);
@@ -208,26 +208,26 @@ describe("evaluateBirthdate", () => {
 
   describe("edge cases", () => {
     it("handles the last day of the year", () => {
-      const result = evaluateBirthDate(BIRTH_END_OF_YEAR, TODAY_END_OF_YEAR);
+      const result = evaluateBirthdate(BIRTH_END_OF_YEAR, TODAY_END_OF_YEAR);
       if (result.status === "ok") {
         expect(result.messages).toContain("Happy Birthday!");
       }
     });
 
     it("handles the first day of January", () => {
-      const result = evaluateBirthDate(BIRTH_START_OF_YEAR, TODAY_NEW_YEAR);
+      const result = evaluateBirthdate(BIRTH_START_OF_YEAR, TODAY_NEW_YEAR);
       if (result.status === "ok") {
         expect(result.messages).toContain("Happy Birthday!");
       }
     });
 
     it("handles the day before a birthday — not a birthday", () => {
-      const result = evaluateBirthDate(BIRTH_YESTERDAY, TODAY_STANDARD);
+      const result = evaluateBirthdate(BIRTH_YESTERDAY, TODAY_STANDARD);
       expect(result.status).toBe("ok");
     });
 
     it("handles the day after a birthday — age already incremented", () => {
-      const result = evaluateBirthDate(BIRTH_TOMORROW, TODAY_STANDARD);
+      const result = evaluateBirthdate(BIRTH_TOMORROW, TODAY_STANDARD);
       if (result.status === "ok") {
         expect(result.age).toBe(34);
       }

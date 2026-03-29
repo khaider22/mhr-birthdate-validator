@@ -1,7 +1,7 @@
-import { parseDate, validateBirthDate } from "../src/birthdate-validator";
+import { parseDate, validateBirthdate } from "../src/birthdate-validator";
 
 //Parse Date
-describe("ParseDate", () => {
+describe("parseDate", () => {
   describe("valid dates", () => {
     it("returns a Date for standard date", () => {
       expect(parseDate("1990/07/07")).toBeInstanceOf(Date);
@@ -87,87 +87,86 @@ describe("ParseDate", () => {
       expect(parseDate("2025/13/01")).toBe(null);
     });
   });
-
-  // validateBirthDate
-  describe("validateBirthdate", () => {
-    describe("valid input", () => {
-      it("return isValid true for correct date formar", () => {
-        const result = validateBirthDate("2015/08/08");
-        expect(result.isValid).toBe(true);
-        if (result.isValid) {
-          expect(result.date).toBeInstanceOf(Date);
-        }
-      });
-
-      it("trims surrounding white spaces before validating birthdate", () => {
-        const result = validateBirthDate(" 2019/09/19 ");
-        expect(result.isValid).toBe(true);
-      });
-
-      it("accepts Feb 29 in a leap year", () => {
-        const result = validateBirthDate("2024/02/29");
-        expect(result.isValid).toBe(true);
-      });
+});
+// validateBirthdate
+describe("validateBirthdate", () => {
+  describe("valid input", () => {
+    it("return isValid true for correct date formar", () => {
+      const result = validateBirthdate("2015/08/08");
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.date).toBeInstanceOf(Date);
+      }
     });
 
-    describe("empty input", () => {
-      it("returns isValid false for empty input", () => {
-        const result = validateBirthDate("");
-        expect(result.isValid).toBe(false);
-      });
-
-      it("returns appropriate error message for empty string", () => {
-        const result = validateBirthDate("");
-        if (!result.isValid) {
-          expect(result.errorMessage).toContain("No Date entered");
-        }
-      });
-
-      it("returns isValid false for white spaced only", () => {
-        const result = validateBirthDate("  ");
-        expect(result.isValid).toBe(false);
-      });
+    it("trims surrounding white spaces before validating birthdate", () => {
+      const result = validateBirthdate(" 2019/09/19 ");
+      expect(result.isValid).toBe(true);
     });
 
-    describe("wrong format", () => {
-      it("returns isValid false for dashes in date", () => {
-        const result = validateBirthDate("2022-05-16");
-        expect(result.isValid).toBe(false);
-      });
+    it("accepts Feb 29 in a leap year", () => {
+      const result = validateBirthdate("2024/02/29");
+      expect(result.isValid).toBe(true);
+    });
+  });
 
-      it("returns an invalid format message", () => {
-        const result = validateBirthDate("16/05/2022");
-        expect(result.isValid).toBe(false);
-        if (!result.isValid) {
-          expect(result.errorMessage).toContain("Invalid format");
-        }
-      });
-
-      it("returns non existent date error message for invalid date input", () => {
-        const result = validateBirthDate("not-a-date");
-        if (!result.isValid) {
-          expect(result.errorMessage).toContain("not-a-date");
-        }
-      });
+  describe("empty input", () => {
+    it("returns isValid false for empty input", () => {
+      const result = validateBirthdate("");
+      expect(result.isValid).toBe(false);
     });
 
-    describe("impossible calendar date", () => {
-      it("returns isValid false for Feb 29 in non-leap year", () => {
-        const result = validateBirthDate("2023/02/29");
-        expect(result.isValid).toBe(false);
-      });
+    it("returns appropriate error message for empty string", () => {
+      const result = validateBirthdate("");
+      if (!result.isValid) {
+        expect(result.errorMessage).toContain("No date entered");
+      }
+    });
 
-      it("returns non-existent date error message for Feb 29 in non-leap year", () => {
-        const result = validateBirthDate("2023/02/29");
-        if (!result.isValid) {
-          expect(result.errorMessage).toContain("Non-existent date");
-        }
-      });
+    it("returns isValid false for white spaced only", () => {
+      const result = validateBirthdate("  ");
+      expect(result.isValid).toBe(false);
+    });
+  });
 
-      it("returns isValid to be false for december 32nd", () => {
-        const result = validateBirthDate("2025/12/32");
-        expect(result.isValid).toBe(false);
-      });
+  describe("wrong format", () => {
+    it("returns isValid false for dashes in date", () => {
+      const result = validateBirthdate("2022-05-16");
+      expect(result.isValid).toBe(false);
+    });
+
+    it("returns an invalid format message", () => {
+      const result = validateBirthdate("16/05/2022");
+      expect(result.isValid).toBe(false);
+      if (!result.isValid) {
+        expect(result.errorMessage).toContain("Invalid format");
+      }
+    });
+
+    it("returns non existent date error message for invalid date input", () => {
+      const result = validateBirthdate("not-a-date");
+      if (!result.isValid) {
+        expect(result.errorMessage).toContain("not-a-date");
+      }
+    });
+  });
+
+  describe("impossible calendar date", () => {
+    it("returns isValid false for Feb 29 in non-leap year", () => {
+      const result = validateBirthdate("2023/02/29");
+      expect(result.isValid).toBe(false);
+    });
+
+    it("returns non-existent date error message for Feb 29 in non-leap year", () => {
+      const result = validateBirthdate("2023/02/29");
+      if (!result.isValid) {
+        expect(result.errorMessage).toContain("Non-existent date");
+      }
+    });
+
+    it("returns isValid to be false for december 32nd", () => {
+      const result = validateBirthdate("2025/12/32");
+      expect(result.isValid).toBe(false);
     });
   });
 });
